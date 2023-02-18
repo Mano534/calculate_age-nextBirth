@@ -17,7 +17,8 @@ class _AgeCalHomeScreenState extends State<AgeCalHomeScreen> {
   TextEditingController _bodController =
       TextEditingController(text: UtilsDate.formateDate(DateTime.now()));
 
-  TextEditingController _tddController = TextEditingController(text: UtilsDate.formateDate(DateTime.now()));
+  TextEditingController _tddController =
+      TextEditingController(text: UtilsDate.formateDate(DateTime.now()));
 
   ShowAge _showAge = ShowAge();
 
@@ -76,11 +77,12 @@ class _AgeCalHomeScreenState extends State<AgeCalHomeScreen> {
                 initialDate: DateTime.now(),
                 firstDate: DateTime(1940),
                 lastDate: DateTime.now());
-            setState(()  {
-              if(_pickedDate != null){
-               _bodController.text =  UtilsDate.formateDate(_pickedDate);
-              }else{
-                _bodController.text = UtilsDate.formateDate(DateTime(1-1-2000));
+            setState(() {
+              if (_pickedDate != null) {
+                _bodController.text = UtilsDate.formateDate(_pickedDate);
+              } else {
+                _bodController.text =
+                    UtilsDate.formateDate(DateTime(1 - 1 - 2000));
               }
             });
           });
@@ -98,10 +100,10 @@ class _AgeCalHomeScreenState extends State<AgeCalHomeScreen> {
                 firstDate: DateTime(1940),
                 lastDate: DateTime.now());
 
-            setState(()  {
-              if(_today != null){
-               _bodController.text =  UtilsDate.formateDate(_today);
-              }else{
+            setState(() {
+              if (_today != null) {
+                _bodController.text = UtilsDate.formateDate(_today);
+              } else {
                 _bodController.text = UtilsDate.formateDate(DateTime.now());
               }
             });
