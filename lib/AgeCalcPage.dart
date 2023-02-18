@@ -1,22 +1,32 @@
-import 'package:ageCalc/showAge.module.dart';
+import 'package:age_calc/dateUtils.dart';
+import 'package:age_calc/showAge.module.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-
 import 'calculateAge.dart';
 import 'nextBirthDate.modul.dart';
 
-class AgeCalHomeScreen extends StatelessWidget {
-  BuildContext? context;
-  DateTime? _pickedDate;
-  DateTime? _today;
+class AgeCalHomeScreen extends StatefulWidget {
+  @override
+  State<AgeCalHomeScreen> createState() => _AgeCalHomeScreenState();
+}
 
-  final _showAge = ShowAge();
-  final _nextBirth = NextBirth();
+class _AgeCalHomeScreenState extends State<AgeCalHomeScreen> {
+  DateTime? _pickedDate = DateTime.now();
+
+  DateTime? _today = DateTime.now();
+
+  TextEditingController _bodController =
+      TextEditingController(text: UtilsDate.formateDate(DateTime.now()));
+
+  TextEditingController _tddController = TextEditingController(text: UtilsDate.formateDate(DateTime.now()));
+
+  ShowAge _showAge = ShowAge();
+
+  NextBirth _nextBirth = NextBirth();
+
   final calcAge = CalculateAge().calculateAge;
+
   final calcNextbirth = CalculateAge().nextBirthdayCalc;
-  
-  
+
   @override
   Widget build(BuildContext context) {
     _buildAppBar() {
@@ -59,12 +69,20 @@ class AgeCalHomeScreen extends StatelessWidget {
       return TextField(
           decoration: _getTextInputDecoration(),
           readOnly: true,
+          controller: _bodController,
           onTap: () async {
-             _pickedDate = await showDatePicker(
+            _pickedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(1940),
                 lastDate: DateTime.now());
+            setState(()  {
+              if(_pickedDate != null){
+               _bodController.text =  UtilsDate.formateDate(_pickedDate);
+              }else{
+                _bodController.text = UtilsDate.formateDate(DateTime(1-1-2000));
+              }
+            });
           });
     }
 
@@ -72,12 +90,21 @@ class AgeCalHomeScreen extends StatelessWidget {
       return TextField(
           decoration: _getTextInputDecoration(),
           readOnly: true,
+          controller: _tddController,
           onTap: () async {
-             _today = await showDatePicker(
+            _today = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(1940),
                 lastDate: DateTime.now());
+
+            setState(()  {
+              if(_today != null){
+               _bodController.text =  UtilsDate.formateDate(_today);
+              }else{
+                _bodController.text = UtilsDate.formateDate(DateTime.now());
+              }
+            });
           });
     }
 
@@ -92,7 +119,14 @@ class AgeCalHomeScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  _showAge = ShowAge();
+                  _nextBirth = NextBirth();
+                  _bodController.text = UtilsDate.formateDate(DateTime.now());
+                  _tddController.text = UtilsDate.formateDate(DateTime.now());
+                });
+              },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: Center(
@@ -104,10 +138,10 @@ class AgeCalHomeScreen extends StatelessWidget {
               )),
           ElevatedButton(
               onPressed: () {
-                calcAge(_pickedDate!,_today!);
-                calcNextbirth(_pickedDate!,_today!);
-                print(ShowAge());
-                print(NextBirth());
+                setState(() {
+                  _showAge = calcAge(_pickedDate!, _today!);
+                  _nextBirth = calcNextbirth(_pickedDate!, _today!);
+                });
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -122,28 +156,28 @@ class AgeCalHomeScreen extends StatelessWidget {
       );
     }
 
-    _buildOutPut(String date, String dateValue){
-      return  Column(
-            children: [
-              Container(
-                width: 115,
-                height: 30,
-                child: Center(
-                    child: Text(
-                  date,
-                  style: TextStyle(color: Colors.white),
-                )),
-                color: Theme.of(context).primaryColor,
-              ),
-              Container(
-                width: 115,
-                height: 30,
-                child: Center(child: Text(dateValue)),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).primaryColor)),
-              ),
-            ],
-          );
+    _buildOutPut(String date, String dateValue) {
+      return Column(
+        children: [
+          Container(
+            width: 115,
+            height: 30,
+            child: Center(
+                child: Text(
+              date,
+              style: TextStyle(color: Colors.white),
+            )),
+            color: Theme.of(context).primaryColor,
+          ),
+          Container(
+            width: 115,
+            height: 30,
+            child: Center(child: Text(dateValue)),
+            decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).primaryColor)),
+          ),
+        ],
+      );
     }
 
     _buildShowAgeRow() {
@@ -152,7 +186,7 @@ class AgeCalHomeScreen extends StatelessWidget {
         children: [
           _buildOutPut('Years', _showAge.years.toString()),
           _buildOutPut('Months', _showAge.months.toString()),
-          _buildOutPut('Days',_showAge.days.toString() ),
+          _buildOutPut('Days', _showAge.days.toString()),
         ],
       );
     }
@@ -173,21 +207,23 @@ class AgeCalHomeScreen extends StatelessWidget {
       // end of app bar
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildtitle('Date of Birth'),
-            _buildDateOfBirthInput(),
-            _emptyBox(),
-            _buildtitle('Today Date'),
-            _buildTodaysDateInput(),
-            _emptyBox(),
-            _buildButtonsRow(),
-            _buildtitle('Age is'),
-            _buildShowAgeRow(),
-            _emptyBox(),
-            _buildtitle('Next Birthday Is'),
-            _buildShowNextBirthdayRow(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildtitle('Date of Birth'),
+              _buildDateOfBirthInput(),
+              _emptyBox(),
+              _buildtitle('Today Date'),
+              _buildTodaysDateInput(),
+              _emptyBox(),
+              _buildButtonsRow(),
+              _buildtitle('Age is'),
+              _buildShowAgeRow(),
+              _emptyBox(),
+              _buildtitle('Next Birthday Is'),
+              _buildShowNextBirthdayRow(),
+            ],
+          ),
         ),
       ),
     );
